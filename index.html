@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Information System</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Open+Sans&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Reset */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 3rem;
+      margin-bottom: 0.2rem;
+      letter-spacing: 2px;
+      color: #f9f9f9;
+      text-shadow: 1px 1px 5px #111;
+    }
+    header p {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #d4e0f0cc;
+      letter-spacing: 0.6px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+    }
+
+    input {
+      flex: 1 1 150px;
+      padding: 0.7rem 1rem;
+      border-radius: 0.8rem;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+    input:focus {
+      box-shadow: 0 0 8px 3px #5aa3f4aa;
+      background-color: #eef7ff;
+      color: #111;
+    }
+
+    button {
+      padding: 0.7rem 2rem;
+      border-radius: 0.8rem;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #1177ff;
+      color: #fff;
+      box-shadow: 0 8px 18px #0a4ecbcc;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      flex: 1 1 120px;
+      max-width: 150px;
+    }
+    button:hover {
+      background: #2a85ff;
+      transform: scale(1.05);
+      box-shadow: 0 12px 28px #2970ffcc;
+    }
+
+    #cancelBtn {
+      background: #777;
+      box-shadow: 0 8px 18px #444;
+      max-width: 120px;
+    }
+    #cancelBtn:hover {
+      background: #999;
+    }
+
+    .student-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.6rem;
+    }
+
+    .student-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 1.6rem 1.8rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: box-shadow 0.3s ease;
+    }
+    .student-card:hover {
+      box-shadow: 0 12px 35px rgba(18, 132, 255, 0.5);
+    }
+    .student-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0 0 0.3rem 0;
+      color: #e3e9ff;
+    }
+    .student-card p {
+      margin: 0.15rem 0;
+      font-weight: 600;
+      color: #c1d3ffcc;
+    }
+
+    .student-card div {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+    }
+
+    .edit-btn, .delete-btn {
+      border: none;
+      border-radius: 0.8rem;
+      padding: 0.5rem 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 6px 15px rgba(255,255,255,0.2);
+      user-select: none;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .edit-btn {
+      background: #2e86c1;
+      color: #f7f7f7;
+    }
+    .edit-btn:hover {
+      background: #3498db;
+      transform: scale(1.1);
+      box-shadow: 0 9px 25px rgba(52, 152, 219, 0.5);
+    }
+
+    .delete-btn {
+      background: #e74c3c;
+      color: #fff;
+    }
+    .delete-btn:hover {
+      background: #ff5c4d;
+      transform: scale(1.1);
+      box-shadow: 0 9px 25px rgba(255, 92, 77, 0.7);
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Student Info System</h1>
+    <p>Manage student records with elegance and ease</p>
+  </header>
+
+  <div class="container">
+    <form id="studentForm">
+      <input type="text" id="name" placeholder="Student Name" required />
+      <input type="text" id="roll" placeholder="Roll Number" required />
+      <input type="text" id="department" placeholder="Department" required />
+      <button type="submit" id="submitBtn">Add Student</button>
+      <button type="button" id="cancelBtn" style="display:none;">Cancel</button>
+    </form>
+
+    <div class="student-list" id="studentList"></div>
+  </div>
+
+  <script>
+    let isEditing = false;
+    let currentEditRoll = null;
+
+    async function loadStudents() {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/students");
+        const students = await response.json();
+        const studentList = document.getElementById("studentList");
+        studentList.innerHTML = "";
+
+        students.forEach((student, index) => {
+          const card = document.createElement("div");
+          card.className = "student-card";
+          card.style.animationDelay = `${index * 0.1}s`;
+          card.innerHTML = `
+            <h3>${student.name}</h3>
+            <p><strong>Roll No:</strong> ${student.roll}</p>
+            <p><strong>Department:</strong> ${student.department}</p>
+            <div>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </div>
+          `;
+
+          // Edit button
+          card.querySelector(".edit-btn").addEventListener("click", () => {
+            editStudent(student.roll, student.name, student.department);
+          });
+
+          // Delete button
+          card.querySelector(".delete-btn").addEventListener("click", async () => {
+            if (confirm(`Are you sure you want to delete ${student.name}?`)) {
+              try {
+                await fetch(`http://127.0.0.1:5000/students/${student.roll}`, {
+                  method: "DELETE",
+                });
+                loadStudents();
+              } catch (err) {
+                alert("Error deleting student");
+                console.error(err);
+              }
+            }
+          });
+
+          studentList.appendChild(card);
+        });
+      } catch (err) {
+        alert("Failed to load students");
+        console.error(err);
+      }
+    }
+
+    function editStudent(roll, name, department) {
+      isEditing = true;
+      currentEditRoll = roll;
+
+      document.getElementById("name").value = name;
+      document.getElementById("roll").value = roll;
+      document.getElementById("department").value = department;
+
+      const submitBtn = document.getElementById("submitBtn");
+      submitBtn.textContent = "Update Student";
+
+      // Enable roll input to be editable on update
+      document.getElementById("roll").disabled = false;
+
+      document.getElementById("cancelBtn").style.display = "inline-block";
+    }
+
+    function resetForm() {
+      isEditing = false;
+      currentEditRoll = null;
+      document.getElementById("studentForm").reset();
+      document.getElementById("submitBtn").textContent = "Add Student";
+      document.getElementById("roll").disabled = false;
+      document.getElementById("cancelBtn").style.display = "none";
+    }
+
+    document.getElementById("cancelBtn").addEventListener("click", () => {
+      resetForm();
+    });
+
+    document.getElementById("studentForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const roll = document.getElementById("roll").value.trim();
+      const department = document.getElementById("department").value.trim();
+
+      if (!name || !roll || !department) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      if (isEditing) {
+        // Update student
+        try {
+          const res = await fetch(`http://127.0.0.1:5000/students/${currentEditRoll}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, roll, department }),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            alert(err.error || "Failed to update student");
+            return;
+          }
+          resetForm();
+          loadStudents();
+        } catch (error) {
+          alert("Error updating student");
+          console.error(error);
+        }
+      } else {
+        // Add new student
+        try {
+          const res = await fetch("http://127.0.0.1:5000/students", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, roll, department }),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            alert(err.error || "Failed to add student");
+            return;
+          }
+          this.reset();
+          loadStudents();
+        } catch (error) {
+          alert("Error adding student");
+          console.error(error);
+        }
+      }
+    });
+
+    // Load students initially
+    loadStudents();
+  </script>
+</body>
+</html>
