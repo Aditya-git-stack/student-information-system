@@ -21,15 +21,28 @@ def get_students():
 @app.route("/students", methods=["POST"])
 def add_student():
     data = request.get_json()
+
+    # Validate incoming data presence
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    name = data.get("name")
+    roll = data.get("roll")
+    department = data.get("department")
+
+    # Validate fields are not empty or missing
+    if not name or not roll or not department:
+        return jsonify({"error": "Missing name, roll, or department"}), 400
+
     # Prevent duplicate roll numbers
     for s in students:
-        if s["roll"] == data["roll"]:
+        if s["roll"] == roll:
             return jsonify({"error": "Roll number already exists"}), 400
 
     students.append({
-        "name": data["name"],
-        "roll": data["roll"],
-        "department": data["department"]
+        "name": name,
+        "roll": roll,
+        "department": department
     })
     return jsonify({"message": "Student added successfully"}), 201
 
@@ -37,6 +50,9 @@ def add_student():
 @app.route("/students/<old_roll>", methods=["PUT"])
 def update_student(old_roll):
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
     new_roll = data.get("roll", old_roll)
     new_name = data.get("name")
     new_department = data.get("department")
