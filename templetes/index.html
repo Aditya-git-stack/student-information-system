@@ -210,7 +210,137 @@
   </div>
 
   <script>
-    // JS functionality is the same as previous response
+  let isEditing = false;
+    let currentEditRoll = null;
+
+    async function loadStudents() {
+      try {
+        const response = await fetch("/students");
+        const students = await response.json();
+        const studentList = document.getElementById("studentList");
+        studentList.innerHTML = "";
+
+        students.forEach((student, index) => {
+          const card = document.createElement("div");
+          card.className = "student-card";
+          card.style.animationDelay = `${index * 0.1}s`;
+          card.innerHTML = `
+            <h3>${student.name}</h3>
+            <p><strong>Roll No:</strong> ${student.roll}</p>
+            <p><strong>Department:</strong> ${student.department}</p>
+            <div>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </div>
+          `;
+
+          card.querySelector(".edit-btn").addEventListener("click", () => {
+            editStudent(student.roll, student.name, student.department);
+          });
+
+          card.querySelector(".delete-btn").addEventListener("click", async () => {
+            if (confirm(`Are you sure you want to delete ${student.name}?`)) {
+              try {
+                await fetch(`/students/${student.roll}`, {
+                  method: "DELETE",
+                });
+                loadStudents();
+              } catch (err) {
+                alert("Error deleting student");
+                console.error(err);
+              }
+            }
+          });
+
+          studentList.appendChild(card);
+        });
+      } catch (err) {
+        alert("Failed to load students");
+        console.error(err);
+      }
+    }
+
+    function editStudent(roll, name, department) {
+      isEditing = true;
+      currentEditRoll = roll;
+
+      document.getElementById("name").value = name;
+      document.getElementById("roll").value = roll;
+      document.getElementById("department").value = department;
+
+      document.getElementById("submitBtn").textContent = "Update Student";
+      document.getElementById("roll").disabled = false;
+      document.getElementById("cancelBtn").style.display = "inline-block";
+    }
+
+    function resetForm() {
+      isEditing = false;
+      currentEditRoll = null;
+      document.getElementById("studentForm").reset();
+      document.getElementById("submitBtn").textContent = "Add Student";
+      document.getElementById("roll").disabled = false;
+      document.getElementById("cancelBtn").style.display = "none";
+    }
+
+    document.getElementById("cancelBtn").addEventListener("click", () => {
+      resetForm();
+    });
+
+    document.getElementById("studentForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const roll = document.getElementById("roll").value.trim();
+      const department = document.getElementById("department").value.trim();
+
+      if (!name || !roll || !department) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      if (isEditing) {
+        try {
+          const res = await fetch(`/students/${currentEditRoll}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, roll, department }),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            alert(err.error || "Failed to update student");
+            return;
+          }
+          resetForm();
+          loadStudents();
+        } catch (error) {
+          alert("Error updating student");
+          console.error(error);
+        }
+      } else {
+        try {
+          const res = await fetch("/students", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, roll, department }),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            alert(err.error || "Failed to add student");
+            return;
+          }
+          this.reset();
+          loadStudents();
+        } catch (error) {
+          alert("Error adding student");
+          console.error(error);
+        }
+      }
+    });
+
+    // Load on start
+    loadStudents();
   </script>
 </body>
 </html>
