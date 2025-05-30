@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_templetes
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder="templetes", static_folder="static")
@@ -10,7 +10,7 @@ students = []
 # Root route — serves your HTML UI
 @app.route("/", methods=["GET"])
 def home():
-    return render_templetes("index.html")
+    return render_template("index.html")
 
 # API: Get all students
 @app.route("/students", methods=["GET"])
