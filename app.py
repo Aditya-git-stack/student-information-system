@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_templetes
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder="templetes", static_folder="static")
