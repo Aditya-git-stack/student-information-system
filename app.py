@@ -1,19 +1,27 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS
+app = Flask(__name__, template_folder="templates", static_folder="static")
+CORS(app)  # Enable CORS for all routes
 
+# In-memory storage
 students = []
 
+# Root route — serves your HTML UI
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
+
+# API: Get all students
 @app.route("/students", methods=["GET"])
 def get_students():
-    return jsonify(students)
+    return jsonify(students), 200
 
+# API: Add a new student
 @app.route("/students", methods=["POST"])
 def add_student():
     data = request.get_json()
-    # Check for duplicate roll number
+    # Prevent duplicate roll numbers
     for s in students:
         if s["roll"] == data["roll"]:
             return jsonify({"error": "Roll number already exists"}), 400
@@ -25,6 +33,7 @@ def add_student():
     })
     return jsonify({"message": "Student added successfully"}), 201
 
+# API: Update existing student (allows changing roll too)
 @app.route("/students/<old_roll>", methods=["PUT"])
 def update_student(old_roll):
     data = request.get_json()
@@ -32,26 +41,35 @@ def update_student(old_roll):
     new_name = data.get("name")
     new_department = data.get("department")
 
-    # Check duplicate roll if changed
+    # If roll changed, check for duplicates
     if new_roll != old_roll:
         for s in students:
             if s["roll"] == new_roll:
                 return jsonify({"error": "New roll number already exists"}), 400
 
+    # Find and update
     for student in students:
         if student["roll"] == old_roll:
             student["roll"] = new_roll
             student["name"] = new_name or student["name"]
             student["department"] = new_department or student["department"]
-            return jsonify({"message": "Student updated successfully"})
+            return jsonify({"message": "Student updated successfully"}), 200
 
     return jsonify({"error": "Student not found"}), 404
 
+# API: Delete a student
 @app.route("/students/<roll>", methods=["DELETE"])
 def delete_student(roll):
     global students
+    original_count = len(students)
     students = [s for s in students if s["roll"] != roll]
-    return jsonify({"message": "Student deleted successfully"})
 
+    if len(students) == original_count:
+        return jsonify({"error": "Student not found"}), 404
+
+    return jsonify({"message": "Student deleted successfully"}), 200
+
+# Run the app
 if __name__ == "__main__":
-    app.run(debug=True)
+    # When deployed, Render will use gunicorn; this is just for local testing
+    app.run(debug=True, host="0.0.0.0")
