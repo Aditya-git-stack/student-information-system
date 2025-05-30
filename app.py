@@ -10,7 +10,7 @@ students = []
 # Root route — serves your HTML UI
 @app.route("/", methods=["GET"])
 def home():
-    return render_template("index.html")
+    return render_templetes("index.html")
 
 # API: Get all students
 @app.route("/students", methods=["GET"])
