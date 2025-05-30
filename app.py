@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
+app = Flask(__name__, template_folder="templetes", static_folder="static")
 CORS(app)  # Enable CORS for all routes
 
 # In-memory storage
